@@ -1,0 +1,56 @@
+INFO
+
+Plase see http://code.google.com/p/rhythmbox-ampache/ for the latest version
+
+Ampache setup
+
+Read Ampache Access Control Lists documentation and create an ACL for RPC (XML API)
+	http://ampache.org/wiki/config:acl
+
+Rhythmbox setup
+
+Untar and put the ampache directory into $HOME/.gnome2/rhythmbox/plugins
+or /usr/lib/rhythmbox/plugins
+
+Run rhythmbox (preferable with "-D ampache" from command line)
+
+Click Edit, select Plugins dialog box, enable "Ampache Library"
+
+Click Configure, enter your infromation, for example URL:
+	http://test.com/server/xml.server.php
+
+Click on Ampache under Library, songs should appear in the browser
+
+
+COPYRIGHT
+
+Copyright (C) 2008-2010 Rhythmbox Ampache plugin team
+
+20-04-2010 - Philip Langdale <philipl@overt.org>
+
+I did some work over the weekend to fix the blocking nature of
+the plugin. I switched to using async gio to make the http
+transfers and dropped the per-request limit to 100. The net
+result is a much more responsive UI that also shows progress
+more often.
+
+I also fixed the reference leaks that prevent rhythmbox
+exiting with the plugin today.
+
+19-04-2010 - Graham Grindlay <grindlay@ee.columbia.edu> 
+  * Added a few small fixes to keep the plugin from choking on bad/empty tag data. 
+  * Genre tags didn't seem to be coming through properly so I set them using the "tag"
+    field instead.  This seems to work fine, although if multiple tags are associated
+    with a track, only the first one will be used.  If you don't like this, you can
+    just comment out line 148 (self.db.set(e, rhythmdb.PROP_GENRE, e_genre))
+
+Patched to work with Ampache 3.5.x by Massimo Mund <massimo.mund@stud.uni-duisburg-essen.de>
+
+Copyright (C) 2008 Seva <seva@sevatech.com>
+
+Portions from Magnatune Rhythmbox plugin
+Copyright (C) 2006 Adam Zimmerman <adam_zimmerman@sfu.ca>
+Copyright (C) 2006 James Livingston <doclivingston@gmail.com>
+
+Portions from 'git clone http://quickplay.isfound.at'
+Copyright (C) 2008 Kevin James Purdy irc://irc.freenode.org/purdyk,isnick
