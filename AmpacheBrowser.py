@@ -338,6 +338,7 @@ class AmpacheBrowser(RB.BrowserSource):
                                         # create AmpachePlaylist source
                                         playlist_source = GObject.new(
                                                 AmpachePlaylist,
+                                                is_local=False,
                                                 shell=self.__shell,
                                                 entry_type=self.__entry_type,
                                                 name=_(playlist[1])
@@ -468,6 +469,7 @@ class AmpacheBrowser(RB.BrowserSource):
                                         # create AmpachePlaylist source
                                         playlist_source = GObject.new(
                                                 AmpachePlaylist,
+                                                is_local=False,
                                                 shell=self.__shell,
                                                 entry_type=self.__entry_type,
                                                 name=_(cache)
@@ -571,6 +573,7 @@ class AmpacheBrowser(RB.BrowserSource):
                                                 filename)
                                         try:
                                                 if os.path.isfile(abs_filename):
+                                                        print("remove cache file: %s" % abs_filename)
                                                         os.unlink(abs_filename)
                                         except Exception as e:
                                                 print(e)
