@@ -361,7 +361,8 @@ class AmpacheBrowser(RB.BrowserSource):
                                                         ''.join([playlist[1], '.xml'])))
 
                         except Exception as e:
-                                print('no more playlists to process')
+                                print('no more playlists to process, refilter display page model')
+                                self.__shell.props.display_page_model.refilter()
                                 return
 
 
@@ -487,7 +488,8 @@ class AmpacheBrowser(RB.BrowserSource):
                                                 playlist_source)
 
                         except Exception as e:
-                                print('no more playlists to process')
+                                print('no more playlists to process, refilter display page model')
+                                self.__shell.props.display_page_model.refilter()
                                 return
 
                 def enumerate_cache_files():
