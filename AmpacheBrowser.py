@@ -685,6 +685,12 @@ class AmpacheBrowser(RB.BrowserSource):
                 return (self.__text, self.__progress_text, self.__progress)
 
         def clean_db(self):
+                # remove playlists
+                for playlist_source in self.__playlist_sources:
+                        # delete Playlist source
+                        playlist_source.delete_thyself()
+                        playlist_source = None
+
                 self.__db.entry_delete_by_type(self.__entry_type)
                 self.__db.commit()
                 # self.__entries should be deleted, but here it's too soon, now it just grows on each update
@@ -702,12 +708,6 @@ class AmpacheBrowser(RB.BrowserSource):
                         # disconnect from art store
                         self.__art_store.disconnect(self.__art_request)
                         self.__art_store = None
-
-                        # remove playlists
-                        for playlist_source in self.__playlist_sources:
-                                # delete Playlist source
-                                playlist_source.delete_thyself()
-                                playlist_source = None
 
                         # remove all AmpacheEntryTypes from database
                         self.clean_db()
