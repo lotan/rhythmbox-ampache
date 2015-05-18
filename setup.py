@@ -13,6 +13,11 @@ class post_install(install_data):
         # Execute commands after copying
         os.system('glib-compile-schemas %s/share/glib-2.0/schemas' % self.install_dir)
 
+if (os.uname()[4].find('64') != -1):
+    lib_dir = 'lib64'
+else:
+    lib_dir = 'lib'
+
 setup(name="rhythmbox-ampache",
       cmdclass={"install_data": post_install},
       version="0.11",
@@ -21,7 +26,7 @@ setup(name="rhythmbox-ampache",
       author_email="rhythmbox-ampache@googlegroups.com",
       url="http://code.google.com/p/rhythmbox-ampache",
       data_files=[
-          ("lib/rhythmbox/plugins/ampache", ["ampache.plugin", "ampache.py", "AmpacheBrowser.py", "AmpacheConfigDialog.py"]),
+          (lib_dir+"/rhythmbox/plugins/ampache", ["ampache.plugin", "ampache.py", "AmpacheBrowser.py", "AmpacheConfigDialog.py"]),
           ("share/rhythmbox/plugins/ampache", ["ampache-prefs.ui", "ampache.ico", "ampache.png"]),
           ("share/glib-2.0/schemas", ["org.gnome.rhythmbox.plugins.ampache.gschema.xml"]),
           ],
