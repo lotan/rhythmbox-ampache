@@ -4,19 +4,29 @@ from distutils.core import setup
 from distutils.sysconfig import PREFIX
 from distutils.command.install_data import install_data
 import os
+import sys
 
 class post_install(install_data):
     def run(self):
         # Call parent
         install_data.run(self)
 
-        # Execute commands after copying
-        os.system('glib-compile-schemas %s/share/glib-2.0/schemas' % self.install_dir)
+        if glib_compile_schemas:
+            # Execute commands after copying
+            os.system('glib-compile-schemas %s/share/glib-2.0/schemas' % self.install_dir)
 
+# determine lib path depending on architecture
 if (os.uname()[4].find('64') != -1):
     lib_dir = 'lib64'
 else:
     lib_dir = 'lib'
+
+# optionally compile glib schemas
+glib_compile_schemas = True
+
+if "--no-glib-compile-schemas" in sys.argv:
+    glib_compile_schemas = False
+    sys.argv.remove("--no-glib-compile-schemas")
 
 setup(name="rhythmbox-ampache",
       cmdclass={"install_data": post_install},
