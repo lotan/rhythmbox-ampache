@@ -1,4 +1,28 @@
 # vim: expandtab shiftwidth=8 softtabstop=8 tabstop=8
+#
+# (c) 2010
+#       envyseapets@gmail.com
+#       grindlay@gmail.com
+#       langdalepl@gmail.com
+#       massimo.mund@googlemail.com
+#       bethebunny@gmail.com,
+# 2012-2015 lotan_rm@gmx.de
+#
+# This file is part of the Rhythmbox Ampache plugin.
+#
+# The Rhythmbox Ampache plugin is free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# The Rhythmbox Ampache plugin is distributed in the hope that it will
+# be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with the Rhythmbox Ampache plugin.  If not, see
+# <http://www.gnu.org/licenses/>.
 
 import rb
 from gi.repository import GObject, Gtk, Gio, PeasGtk
