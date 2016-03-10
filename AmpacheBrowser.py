@@ -297,6 +297,9 @@ class AmpacheBrowser(RB.BrowserSource):
                                         self.__entries))
 
                                 print("parse chunk %s[%d]..." % (playlist_name, data[0]))
+                                f = open('%s[%d].xml' % (playlist_name, data[0]), 'w')
+                                f.write(contents.decode('utf-8'))
+                                f.close()
                                 try:
                                         parser.feed(contents)
                                 except xml.sax.SAXParseException as e:
