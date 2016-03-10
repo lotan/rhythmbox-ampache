@@ -358,45 +358,52 @@ class AmpacheBrowser(RB.BrowserSource):
 
                 def download_iterate():
                         try:
-                                playlist = self.__playlists.popleft()
-                                print('process playlist: %s' % playlist[1])
-                                if playlist[0] == 0:
-                                        download_songs(
-                                                '%s/server/xml.server.php?action=songs&auth=%s' %
-                                                        (self.__settings['url'], self.__handshake_auth),
-                                                self.__handshake_songs,
-                                                False,
-                                                self,
-                                                self.__songs_cache_filename)
+                                if len(self.__playlists) > 0:
+                                        playlist = self.__playlists.popleft()
+                                        print('process playlist: %s' % playlist[1])
+                                        if playlist[0] == 0:
+                                                download_songs(
+                                                        '%s/server/xml.server.php?action=songs&auth=%s' %
+                                                                (self.__settings['url'],
+                                                                self.__handshake_auth),
+                                                        self.__handshake_songs,
+                                                        False,
+                                                        self,
+                                                        self.__songs_cache_filename,
+                                                        playlist[1])
+                                        else:
+                                                # create AmpachePlaylist source
+                                                playlist_source = GObject.new(
+                                                        AmpachePlaylist,
+                                                        is_local=False,
+                                                        shell=self.__shell,
+                                                        entry_type=self.__entry_type,
+                                                        name=_(playlist[1])
+                                                )
+                                                self.__playlist_sources.append(playlist_source)
+
+                                                # insert AmpachePlaylist source into AmpacheBrowser source
+                                                self.__shell.append_display_page(playlist_source, self)
+
+                                                download_songs(
+                                                        '%s/server/xml.server.php?action=playlist_songs&filter=%d&auth=%s' % \
+                                                                (self.__settings['url'],
+                                                                playlist[0],
+                                                                self.__handshake_auth),
+                                                        playlist[2],
+                                                        True,
+                                                        playlist_source,
+                                                        os.path.join(
+                                                                self.__cache_directory,
+                                                                ''.join([playlist[1], '.xml'])),
+                                                        playlist[1])
+
                                 else:
-                                        # create AmpachePlaylist source
-                                        playlist_source = GObject.new(
-                                                AmpachePlaylist,
-                                                is_local=False,
-                                                shell=self.__shell,
-                                                entry_type=self.__entry_type,
-                                                name=_(playlist[1])
-                                        )
-                                        self.__playlist_sources.append(playlist_source)
-
-                                        # insert AmpachePlaylist source into AmpacheBrowser source
-                                        self.__shell.append_display_page(playlist_source, self)
-
-                                        download_songs(
-                                                '%s/server/xml.server.php?action=playlist_songs&filter=%d&auth=%s' % \
-                                                        (self.__settings['url'],
-                                                        playlist[0],
-                                                        self.__handshake_auth),
-                                                playlist[2],
-                                                True,
-                                                playlist_source,
-                                                os.path.join(
-                                                        self.__cache_directory,
-                                                        ''.join([playlist[1], '.xml'])))
+                                        print('no more playlists to process, refilter display page model')
+                                        self.__shell.props.display_page_model.refilter()
 
                         except Exception as e:
-                                print('no more playlists to process, refilter display page model')
-                                self.__shell.props.display_page_model.refilter()
+                                print('Exception: %s' % e)
                                 return
 
 
