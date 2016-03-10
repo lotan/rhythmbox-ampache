@@ -233,7 +233,7 @@ class AmpacheBrowser(RB.BrowserSource):
 
                 ### download songs from Ampache server
 
-                def download_songs(uri, items, is_playlist, source, cache_filename):
+                def download_songs(uri, items, is_playlist, source, cache_filename, playlist_name):
 
                         def cache_saved_cb(stream, result, data):
                                 try:
@@ -248,8 +248,6 @@ class AmpacheBrowser(RB.BrowserSource):
                                 # change modification time to newest time
                                 newest_time = int(mktime(self.__handshake_newest.timetuple()))
                                 os.utime(cache_filename, (newest_time, newest_time))
-                                # process next playlist
-                                download_iterate()
 
                         def open_append_cb(file, result, data):
                                 try:
@@ -283,18 +281,11 @@ class AmpacheBrowser(RB.BrowserSource):
 
                                 new_offset = data[0] + self.__limit
 
+                                # show progress
                                 self.__progress = float(new_offset) / float(items)
                                 self.notify_status_changed()
 
-                                if new_offset < items:
-                                        # download subsequent chunk of songs
-                                        download_songs_chunk(new_offset, data[1])
-                                else:
-                                        self.__text = ''
-                                        self.__progress = 1
-                                        self.notify_status_changed()
-
-                                # instantiate songs parser
+                                # instantiate songs parser and parse XML
                                 parser = xml.sax.make_parser()
                                 parser.setContentHandler(SongsHandler(
                                         is_playlist,
@@ -305,10 +296,26 @@ class AmpacheBrowser(RB.BrowserSource):
                                         self.__handshake_auth,
                                         self.__entries))
 
+                                print("parse chunk %s[%d]..." % (playlist_name, data[0]))
                                 try:
                                         parser.feed(contents)
                                 except xml.sax.SAXParseException as e:
-                                        print("error parsing songs: %s" % e)
+                                        print("error parsing songs: %s: %s" %
+                                                (e, contents.split("\n")[e.getLineNumber()]))
+
+                                # get next chunk of move on to next playlist
+                                if new_offset < items:
+                                        # download subsequent chunk of songs
+                                        download_songs_chunk(new_offset, data[1])
+                                else:
+                                        # last chunk downloaded
+                                        # change progress to 100%
+                                        self.__text = ''
+                                        self.__progress = 1
+                                        self.notify_status_changed()
+
+                                        # process next playlist
+                                        download_iterate()
 
                                 # remove enveloping <?xml> and <root> tags
                                 # as needed to regenerate one full .xml
@@ -318,6 +325,8 @@ class AmpacheBrowser(RB.BrowserSource):
                                 if new_offset < items:
                                         del lines[-2:]
 
+                                # append to cache file
+                                print("write chunk %s[%d] to file..." % (playlist_name, data[0]))
                                 data[1].append_to_async(
                                         Gio.FileCreateFlags.NONE,
                                         GLib.PRIORITY_DEFAULT,
@@ -333,9 +342,10 @@ class AmpacheBrowser(RB.BrowserSource):
                                         Gio.Cancellable(),
                                         songs_downloaded_cb,
                                         (offset, cache_file))
-                                print("downloading songs: %s" % (ampache_server_uri))
+                                print("download %s[%d]: %s" %
+                                        (playlist_name, offset, ampache_server_uri))
 
-                        self.__text = 'Download songs from Ampache server...'
+                        self.__text = 'Download %s from Ampache server...' % (playlist_name)
                         self.__progress = 0
                         self.notify_status_changed()
 
