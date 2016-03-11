@@ -301,7 +301,7 @@ class AmpacheBrowser(RB.BrowserSource):
                                         parser.feed(contents)
                                 except xml.sax.SAXParseException as e:
                                         print("error parsing songs: %s: %s" %
-                                                (e, contents.split("\n")[e.getLineNumber()]))
+                                                (e, contents.decode('utf-8').split("\n")[e.getLineNumber()]))
 
                                 # get next chunk of move on to next playlist
                                 if new_offset < items:
