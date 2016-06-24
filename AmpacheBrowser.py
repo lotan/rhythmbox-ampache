@@ -108,69 +108,70 @@ class SongsHandler(xml.sax.handler.ContentHandler):
                 self.__text = ''
 
         def endElement(self, name):
-                if name == 'song':
-                        try:
-                                if self.__is_playlist:
-                                        self.__source.add_location(self.__url, -1)
-                                else:
-                                        # add the track to the database if it doesn't exist
-                                        entry = self.__db.entry_lookup_by_location(self.__url)
-                                        if entry == None:
-                                                entry = RB.RhythmDBEntry.new(self.__db, self.__entry_type, self.__url)
-                                                self.__entries.append(entry)
+                if self.__text:
+                        if name == 'song':
+                                try:
+                                        if self.__is_playlist:
+                                                self.__source.add_location(self.__url, -1)
+                                        else:
+                                                # add the track to the database if it doesn't exist
+                                                entry = self.__db.entry_lookup_by_location(self.__url)
+                                                if entry == None:
+                                                        entry = RB.RhythmDBEntry.new(self.__db, self.__entry_type, self.__url)
+                                                        self.__entries.append(entry)
 
-                                                if self.__artist != '':
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.ARTIST, self.__artist)
-                                                if self.__album != '':
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.ALBUM, self.__album)
-                                                if self.__title != '':
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.TITLE, self.__title)
-                                                if self.__tag != '':
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.GENRE, self.__tag)
-                                                self.__db.entry_set(entry, RB.RhythmDBPropType.TRACK_NUMBER, self.__track)
-                                                self.__db.entry_set(entry, RB.RhythmDBPropType.DATE, self.__year)
-                                                self.__db.entry_set(entry, RB.RhythmDBPropType.DURATION, self.__time)
-                                                self.__db.entry_set(entry, RB.RhythmDBPropType.FILE_SIZE, self.__size)
-                                                self.__db.entry_set(entry, RB.RhythmDBPropType.RATING, self.__rating)
-                                                self.__db.commit()
+                                                        if self.__artist != '':
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.ARTIST, self.__artist)
+                                                        if self.__album != '':
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.ALBUM, self.__album)
+                                                        if self.__title != '':
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.TITLE, self.__title)
+                                                        if self.__tag != '':
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.GENRE, self.__tag)
+                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.TRACK_NUMBER, self.__track)
+                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.DATE, self.__year)
+                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.DURATION, self.__time)
+                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.FILE_SIZE, self.__size)
+                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.RATING, self.__rating)
+                                                        self.__db.commit()
 
-                                                self.__albumart[self.__artist + self.__album] = self.__art
+                                                        self.__albumart[self.__artist + self.__album] = self.__art
 
-                        except Exception as e: # This happens on duplicate uris being added
-                                sys.excepthook(*sys.exc_info())
-                                print("Couldn't add %s - %s" % (self.__artist, self.__title), e)
+                                except Exception as e: # This happens on duplicate uris being added
+                                        sys.excepthook(*sys.exc_info())
+                                        print("Couldn't add %s - %s" % (self.__artist, self.__title), e)
 
-                        self.__clear()
+                                self.__clear()
 
-                elif name == 'url':
-                        if self.__auth: # replace ssid string with new auth string
-                                self.__text = re.sub(self.__re_auth, 'ssid='+self.__auth, self.__text);
-                        self.__url = self.__text
-                elif name == 'artist':
-                        self.__artist = self.__text
-                elif name == 'album':
-                        self.__album = self.__text
-                elif name == 'title':
-                        self.__title = self.__text
-                elif name == 'tag':
-                        self.__tag = self.__text
-                elif name == 'track':
-                        self.__track = int(self.__text)
-                elif name == 'year':
-                        if (GLib.Date.valid_year(int(self.__text))):
-                                self.__year = GLib.Date.new_dmy(1, 1, int(self.__text)).get_julian()
-                elif name == 'time':
-                        self.__time = int(self.__text)
-                elif name == 'size':
-                        self.__size = int(self.__text)
-                elif name == 'rating':
-                        self.__rating = int(self.__text)
-                elif name == 'art':
-                        if self.__auth: # replace auth string with new auth string
-                                self.__text = re.sub(self.__re_auth, 'auth='+self.__auth, self.__text);
-                        self.__art = self.__text
-                else:
-                        self.__null = self.__text
+                        elif name == 'url':
+                                if self.__auth: # replace ssid string with new auth string
+                                        self.__text = re.sub(self.__re_auth, 'ssid='+self.__auth, self.__text);
+                                self.__url = self.__text
+                        elif name == 'artist':
+                                self.__artist = self.__text
+                        elif name == 'album':
+                                self.__album = self.__text
+                        elif name == 'title':
+                                self.__title = self.__text
+                        elif name == 'tag':
+                                self.__tag = self.__text
+                        elif name == 'track':
+                                self.__track = int(self.__text)
+                        elif name == 'year':
+                                if (GLib.Date.valid_year(int(self.__text))):
+                                        self.__year = GLib.Date.new_dmy(1, 1, int(self.__text)).get_julian()
+                        elif name == 'time':
+                                self.__time = int(self.__text)
+                        elif name == 'size':
+                                self.__size = int(self.__text)
+                        elif name == 'rating':
+                                self.__rating = int(self.__text)
+                        elif name == 'art':
+                                if self.__auth: # replace auth string with new auth string
+                                        self.__text = re.sub(self.__re_auth, 'auth='+self.__auth, self.__text);
+                                self.__art = self.__text
+                        else:
+                                self.__null = self.__text
 
         def characters(self, content):
                 self.__text = self.__text + content
