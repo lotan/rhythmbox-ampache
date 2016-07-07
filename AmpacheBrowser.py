@@ -100,7 +100,7 @@ class SongsHandler(xml.sax.handler.ContentHandler):
                 self.__auth = auth
                 self.__entries = entries
                 self.__clear()
-                self.__re_auth = re.compile('\\b(?:auth|ssid)=[a-fA-F0-9]*')
+                self.__re_auth = re.compile('\\b(auth|ssid)=[a-fA-F0-9]*')
 
         def startElement(self, name, attrs):
                 if name == 'song':
@@ -145,7 +145,7 @@ class SongsHandler(xml.sax.handler.ContentHandler):
 
                         elif name == 'url':
                                 if self.__auth: # replace ssid string with new auth string
-                                        self.__text = re.sub(self.__re_auth, 'ssid='+self.__auth, self.__text);
+                                        self.__text = re.sub(self.__re_auth, r'\1='+self.__auth, self.__text);
                                 self.__url = self.__text
                         elif name == 'artist':
                                 self.__artist = self.__text
