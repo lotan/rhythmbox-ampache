@@ -16,7 +16,7 @@ class post_install(install_data):
             os.system('glib-compile-schemas %s/share/glib-2.0/schemas' % self.install_dir)
 
 # determine lib path depending on architecture
-if (os.uname()[4].find('64') != -1):
+if (os.uname()[4].find('64') != -1 or os.uname()[4].find('s390x') != -1):
     lib_dir = 'lib64'
 else:
     lib_dir = 'lib'
