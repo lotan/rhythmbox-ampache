@@ -61,7 +61,7 @@ class PlaylistsHandler(xml.sax.handler.ContentHandler):
                 self.__user = user
 
         def startElement(self, name, attrs):
-                if name == 'playlist':
+                if name == 'playlist' and attrs['id'].isdigit():
                         self.__id = int(attrs['id'])
                 self.__text = ''
 
@@ -77,7 +77,7 @@ class PlaylistsHandler(xml.sax.handler.ContentHandler):
                                         self.__items])
                 elif name == 'name':
                         self.__name = self.__text
-                elif name == 'items':
+                elif name == 'items' and self.__text.isdigit():
                         self.__items = int(self.__text)
                 elif name == 'owner':
                         self.__owner = self.__text
@@ -99,7 +99,7 @@ class SongsHandler(xml.sax.handler.ContentHandler):
                 self.__albumart = albumart
                 self.__auth = auth
                 self.__entries = entries
-                self.__clear()
+                self.__default()
                 self.__re_auth = re.compile('\\b(auth|ssid)=[a-fA-F0-9]*')
 
         def startElement(self, name, attrs):
@@ -128,20 +128,26 @@ class SongsHandler(xml.sax.handler.ContentHandler):
                                                                 self.__db.entry_set(entry, RB.RhythmDBPropType.TITLE, self.__title)
                                                         if self.__tag != '':
                                                                 self.__db.entry_set(entry, RB.RhythmDBPropType.GENRE, self.__tag)
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.TRACK_NUMBER, self.__track)
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.DATE, self.__year)
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.DURATION, self.__time)
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.FILE_SIZE, self.__size)
-                                                        self.__db.entry_set(entry, RB.RhythmDBPropType.RATING, self.__rating)
+                                                        if self.__track != -1:
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.TRACK_NUMBER, self.__track)
+                                                        if self.__year:
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.DATE, self.__year)
+                                                        if self.__time != -1:
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.DURATION, self.__time)
+                                                        if self.__size != -1:
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.FILE_SIZE, self.__size)
+                                                        if self.__rating != -1:
+                                                                self.__db.entry_set(entry, RB.RhythmDBPropType.RATING, self.__rating)
                                                         self.__db.commit()
 
-                                                        self.__albumart[self.__artist + self.__album] = self.__art
+                                                        if self.__art != '':
+                                                                self.__albumart[self.__artist + self.__album] = self.__art
 
                                 except Exception as e: # This happens on duplicate uris being added
                                         sys.excepthook(*sys.exc_info())
                                         print("Couldn't add %s - %s" % (self.__artist, self.__title), e)
 
-                                self.__clear()
+                                self.__default()
 
                         elif name == 'url':
                                 if self.__auth: # replace ssid string with new auth string
@@ -155,16 +161,16 @@ class SongsHandler(xml.sax.handler.ContentHandler):
                                 self.__title = self.__text
                         elif name == 'tag':
                                 self.__tag = self.__text
-                        elif name == 'track':
+                        elif name == 'track' and self.__text.isdigit():
                                 self.__track = int(self.__text)
-                        elif name == 'year':
+                        elif name == 'year' and self.__text.isdigit():
                                 if (GLib.Date.valid_year(int(self.__text))):
                                         self.__year = GLib.Date.new_dmy(1, 1, int(self.__text)).get_julian()
-                        elif name == 'time':
+                        elif name == 'time' and self.__text.isdigit():
                                 self.__time = int(self.__text)
-                        elif name == 'size':
+                        elif name == 'size' and self.__text.isdigit():
                                 self.__size = int(self.__text)
-                        elif name == 'rating':
+                        elif name == 'rating' and self.__text.isdigit():
                                 self.__rating = int(self.__text)
                         elif name == 'art':
                                 if self.__auth: # replace auth string with new auth string
@@ -176,20 +182,20 @@ class SongsHandler(xml.sax.handler.ContentHandler):
         def characters(self, content):
                 self.__text = self.__text + content
 
-        def __clear(self):
-                self.__id = 0
+        def __default(self):
+                self.__id = -1
                 self.__url = ''
                 self.__artist = ''
                 self.__album = ''
                 self.__title = ''
                 self.__tag = ''
-                self.__track = ''
-                self.__year = 0
-                self.__time = 0
-                self.__size = 0
-                self.__rating = 0
+                self.__track = -1
+                self.__year = -1
+                self.__time = -1
+                self.__size = -1
+                self.__rating = -1
                 self.__art = ''
-
+ 
 class AmpachePlaylist(RB.StaticPlaylistSource):
         def __init__(self, **kwargs):
                 super(AmpachePlaylist, self).__init__(kwargs)
