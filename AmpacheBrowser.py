@@ -676,17 +676,27 @@ class AmpacheBrowser(RB.BrowserSource):
                 parser.setContentHandler(HandshakeHandler(handshake))
 
                 # build handshake url
-                timestamp = int(time.time())
-                password = hashlib.sha256(self.__settings['password'].encode('utf-8')).hexdigest()
-                authkey = hashlib.sha256((str(timestamp) + password).encode('utf-8')).hexdigest()
+                if self.__settings['username'] != '':
+                        # username/password provided
+                        timestamp = int(time.time())
+                        password = hashlib.sha256(self.__settings['password'].encode('utf-8')).hexdigest()
+                        authkey = hashlib.sha256((str(timestamp) + password).encode('utf-8')).hexdigest()
+
+                        ampache_server_uri = \
+                                '%s/server/xml.server.php?action=handshake&auth=%s&timestamp=%s&user=%s&version=350001' % \
+                                (self.__settings['url'],
+                                authkey,
+                                timestamp,
+                                self.__settings['username'])
+                else:
+                        # api key provided
+                        ampache_server_uri = \
+                                '%s/server/xml.server.php?action=handshake&auth=%s&version=350001' % \
+                                (self.__settings['url'],
+                                self.__settings['password'])
+
 
                 # execute handshake
-                ampache_server_uri = \
-                        '%s/server/xml.server.php?action=handshake&auth=%s&timestamp=%s&user=%s&version=350001' % \
-                        (self.__settings['url'],
-                        authkey,
-                        timestamp,
-                        self.__settings['username'])
                 ampache_server_file = Gio.file_new_for_uri(ampache_server_uri)
                 ampache_server_file.load_contents_async(
                         Gio.Cancellable(),
