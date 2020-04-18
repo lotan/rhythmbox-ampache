@@ -61,8 +61,8 @@ class PlaylistsHandler(xml.sax.handler.ContentHandler):
                 self.__user = user
 
         def startElement(self, name, attrs):
-                if name == 'playlist' and attrs['id'].isdigit():
-                        self.__id = int(attrs['id'])
+                if name == 'playlist':
+                        self.__id = attrs['id']
                 self.__text = ''
 
         def endElement(self, name):
@@ -393,7 +393,7 @@ class AmpacheBrowser(RB.BrowserSource):
                                                 self.__shell.append_display_page(playlist_source, self)
 
                                                 download_songs(
-                                                        '%s/server/xml.server.php?action=playlist_songs&filter=%d&auth=%s' % \
+                                                        '%s/server/xml.server.php?action=playlist_songs&filter=%s&auth=%s' % \
                                                                 (self.__settings['url'],
                                                                 playlist[0],
                                                                 self.__handshake_auth),
