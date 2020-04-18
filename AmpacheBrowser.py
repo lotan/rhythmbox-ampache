@@ -225,8 +225,7 @@ class AmpacheBrowser(RB.BrowserSource):
                 self.__entries = []
 
                 self.__text = None
-                self.__progress_text = None
-                self.__progress = 1
+                self.__busy = False
 
                 self.__activated = False
 
@@ -288,10 +287,6 @@ class AmpacheBrowser(RB.BrowserSource):
 
                                 new_offset = data[0] + self.__limit
 
-                                # show progress
-                                self.__progress = float(new_offset) / float(items)
-                                self.notify_status_changed()
-
                                 # instantiate songs parser and parse XML
                                 parser = xml.sax.make_parser()
                                 parser.setContentHandler(SongsHandler(
@@ -317,8 +312,8 @@ class AmpacheBrowser(RB.BrowserSource):
                                 else:
                                         # last chunk downloaded
                                         # change progress to 100%
-                                        self.__text = ''
-                                        self.__progress = 1
+                                        self.__text = None
+                                        self.__busy = False
                                         self.notify_status_changed()
 
                                         # process next playlist
@@ -353,7 +348,7 @@ class AmpacheBrowser(RB.BrowserSource):
                                         (playlist_name, offset, ampache_server_uri))
 
                         self.__text = 'Download %s from Ampache server...' % (playlist_name)
-                        self.__progress = 0
+                        self.__busy = True
                         self.notify_status_changed()
 
                         cache_file = Gio.file_new_for_path(cache_filename)
@@ -486,15 +481,15 @@ class AmpacheBrowser(RB.BrowserSource):
                                 except xml.sax.SAXParseException as e:
                                         print("error parsing songs: %s" % e)
 
-                                self.__text = ''
-                                self.__progress = 1
+                                self.__text = None
+                                self.__busy = False
                                 self.notify_status_changed()
 
                                 # load next cache
                                 load_iterate()
 
                         self.__text = 'Load from cache "%s"...' % filename
-                        self.__progress = 0
+                        self.__busy = True
                         self.notify_status_changed()
 
                         cache_file = Gio.file_new_for_path(filename)
@@ -739,8 +734,8 @@ class AmpacheBrowser(RB.BrowserSource):
                         storekey.add_field('artist', artist)
                         store.store_uri(storekey, RB.ExtDBSourceType.SEARCH, uri)
 
-        def do_get_status(self, status, progress_text, progress):
-                return (self.__text, self.__progress_text, self.__progress)
+        def do_get_status(self, text, busy):
+                return (self.__text, True)
 
         def clean_db(self):
                 # remove playlists
