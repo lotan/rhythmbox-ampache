@@ -35,6 +35,7 @@ setup(name="rhythmbox-ampache",
       author="Rhythmbox Ampache plugin team",
       author_email="rhythmbox-ampache@googlegroups.com",
       url="http://code.google.com/p/rhythmbox-ampache",
+      packages=[],
       data_files=[
           (lib_dir+"/rhythmbox/plugins/ampache", ["ampache.plugin", "ampache.py", "AmpacheBrowser.py", "AmpacheConfigDialog.py"]),
           ("share/rhythmbox/plugins/ampache", ["ampache-prefs.ui", "ampache.ico", "ampache.png"]),
